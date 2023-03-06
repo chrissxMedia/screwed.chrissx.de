@@ -1,0 +1,7 @@
+.parcel-cache/
+dist/
+node_modules/
+parcel-bundle-reports/
+package-lock.json
+pnpm-lock.yaml
+.cache/
