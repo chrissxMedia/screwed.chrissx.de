@@ -1,6 +1,7 @@
 import { multiply, subtract, unit, Unit } from "mathjs";
 
 export type Thread = {
+    name: string,
     diameter: Unit,
     pitch: Unit,
 };
@@ -9,7 +10,11 @@ export function minorDiameter(t: Thread): Unit {
     return subtract(t.diameter, multiply(1.08253175473, t.pitch)) as Unit;
 }
 
-const m = {
+export function pitchDiameter(t: Thread): Unit {
+    return subtract(t.diameter, multiply(0.6495190528, t.pitch)) as Unit;
+}
+
+const mCoarse = {
     1: 0.25,
     1.2: 0.25,
     1.4: 0.3,
@@ -46,6 +51,42 @@ const m = {
     64: 6,
 };
 
-export function M(diameter: number, pitch?: number): Thread {
-    return { diameter: unit(diameter, "mm"), pitch: unit(pitch ?? m[diameter], "mm") };
+const mFine = {
+    1: 0.2,
+    1.2: 0.2,
+    1.4: 0.2,
+    1.6: 0.2,
+    1.8: 0.2,
+    2: 0.25,
+    2.5: 0.35,
+    3: 0.35,
+    3.5: 0.35,
+    4: 0.5,
+    5: 0.5,
+    6: 0.75,
+    7: 0.75,
+    14: 1.5,
+    16: 1.5,
+    24: 2,
+    27: 2,
+    30: 2,
+    33: 2,
+    36: 3,
+    39: 3,
+    42: 3,
+    45: 3,
+    48: 3,
+    52: 4,
+    56: 4,
+    60: 4,
+    64: 4,
+};
+
+export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"): Thread {
+    const p = pitch == "coarse" ? mCoarse[diameter] : "fine" ? mFine[diameter] : pitch;
+    return {
+        name: "M" + diameter + (p == mCoarse[diameter] ? "" : "×" + p),
+        diameter: unit(diameter, "mm"),
+        pitch: unit(p, "mm")
+    };
 }
