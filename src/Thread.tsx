@@ -168,7 +168,7 @@ const unef = {
     1.0000: 20,
 };
 
-export function uts(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "fine" | "unef" | "extrafine" = "unc"): Thread {
+export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "fine" | "unef" | "extrafine" = "unc"): Thread {
     const ed = diameter.includes("#00") ? "#-" + (diameter.split("0").length - 2) : diameter;
     const d = round(evaluate(ed.replace("#", "0.060+0.013*")), 10);
     const t = tpi == "unc" || tpi == "coarse" ? unc[d] : tpi == "unf" || tpi == "fine" ? unf[d] : tpi == "unef" || tpi == "extrafine" ? unef[d] : tpi;
