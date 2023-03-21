@@ -2,7 +2,7 @@ import Drawing from "./Drawing";
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import Table, { LengthUnit, PitchUnit } from "./Table";
-import { M, UTS } from "./thread";
+import { M, UTS } from "./Thread";
 
 function Root() {
     const [lengthUnit, setLengthUnit] = React.useState<LengthUnit>("mm");

@@ -1,6 +1,6 @@
 import { divide, round, Unit } from "mathjs";
 import React from "react";
-import { minorDiameter, pitchDiameter, Thread } from "./thread";
+import { minorDiameter, pitchDiameter, Thread } from "./Thread";
 
 export type LengthUnit = "mm" | "inch";
 export type PitchUnit = "tpmm" | "tpi";
