@@ -14,7 +14,7 @@ export function pitchDiameter(t: Thread): Unit {
     return subtract(t.diameter, multiply(0.6495190528, t.pitch)) as Unit;
 }
 
-const mCoarse = {
+export const mCoarse = {
     1: 0.25,
     1.2: 0.25,
     1.4: 0.3,
@@ -51,7 +51,7 @@ const mCoarse = {
     64: 6,
 };
 
-const mFine = {
+export const mFine = {
     1: 0.2,
     1.2: 0.2,
     1.4: 0.2,
@@ -91,7 +91,7 @@ export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"
     };
 }
 
-const unc = {
+export const unc = {
     0.0730: 64,
     0.0860: 56,
     0.0990: 48,
@@ -127,7 +127,7 @@ const unc = {
     4.0000: 4,
 };
 
-const unf = {
+export const unf = {
     0.0600: 80,
     0.0730: 72,
     0.0860: 64,
@@ -154,7 +154,7 @@ const unf = {
     1.5000: 12,
 };
 
-const unef = {
+export const unef = {
     0.2160: 32,
     0.2500: 32,
     0.3125: 32,
