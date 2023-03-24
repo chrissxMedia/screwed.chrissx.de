@@ -179,3 +179,15 @@ export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "
         pitch: unit(1 / t, "in"),
     };
 }
+
+export function Thread(s: string): Thread | string {
+    s = s.trim().toUpperCase().replace("×", "X").replace("UNC", "").replace("UNF", "").replace("UNEF", "").replace("–", "-");
+
+    if(s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
+    if(s.startsWith("M") && !s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
+    if(s.startsWith("M")) return M(Number(s.substring(1).split("X")[0].trim()), Number(s.split("X")[1].trim()));
+
+    if(s.includes("-")) return UTS(s.split("-")[0].trim(), Number(s.split("-")[1].trim()));
+
+    return "Can't find a thread, filtered input: \"" + s + "\"";
+}
