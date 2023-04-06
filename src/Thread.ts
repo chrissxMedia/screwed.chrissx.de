@@ -83,7 +83,7 @@ export const mFine = {
 };
 
 export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"): Thread {
-    const p = pitch == "coarse" ? mCoarse[diameter] : "fine" ? mFine[diameter] : pitch;
+    const p = pitch == "coarse" ? mCoarse[diameter] : pitch == "fine" ? mFine[diameter] : pitch;
     return {
         name: pitch == "coarse" ? "M" + diameter : pitch == "fine" ? "MF" + diameter : "M" + diameter + "×" + p,
         diameter: unit(diameter, "mm"),
@@ -172,7 +172,6 @@ export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "
     const ed = diameter.includes("#00") ? "#-" + (diameter.split("0").length - 2) : diameter;
     const d = round(evaluate(ed.replace("#", "0.060+0.013*")), 10);
     const t = tpi == "unc" || tpi == "coarse" ? unc[d] : tpi == "unf" || tpi == "fine" ? unf[d] : tpi == "unef" || tpi == "extrafine" ? unef[d] : tpi;
-    console.log("UTS diameter: " + d);
     return {
         name: diameter + "-" + t,
         diameter: unit(d, "in"),
@@ -180,7 +179,8 @@ export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "
     };
 }
 
-export function Thread(s: string): Thread | string {
+// TODO: "UNC #6" → #6-32
+export function Thread(s: string): Thread | undefined {
     s = s.trim().toUpperCase().replace("×", "X").replace("UNC", "").replace("UNF", "").replace("UNEF", "").replace("–", "-");
 
     if(s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
@@ -188,6 +188,4 @@ export function Thread(s: string): Thread | string {
     if(s.startsWith("M")) return M(Number(s.substring(1).split("X")[0].trim()), Number(s.split("X")[1].trim()));
 
     if(s.includes("-")) return UTS(s.split("-")[0].trim(), Number(s.split("-")[1].trim()));
-
-    return "Can't find a thread, filtered input: \"" + s + "\"";
 }
