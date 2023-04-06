@@ -22,13 +22,13 @@ function Root() {
             <Drawing />
             <div className="buttonhost">
                 <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
-                <select id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
+                <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
                     <option value="mm">Millimeter</option>
                     <option value="inch">Inch</option>
                 </select>
                 <div className="interbuttonspacer" />
                 <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
-                <select id="pitchunits" onChange={x => setPitchUnit(x.target.value as PitchUnit)} value={pitchUnit}>
+                <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.target.value as PitchUnit)} value={pitchUnit}>
                     <option value="tpmm">Threads per Millimeter</option>
                     <option value="tpi">Threads per Inch</option>
                 </select>
