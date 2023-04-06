@@ -17,11 +17,15 @@ table {
 }
 
 td, th {
-    border: 1px solid;
+    border: 1px solid #808080;
     text-align: left;
     padding: 4pt 2pt 4pt 4pt;
     overflow: scroll;
     white-space: nowrap;
+}
+
+.unimportant {
+    color: #c0c0c0;
 }
 
 img {
