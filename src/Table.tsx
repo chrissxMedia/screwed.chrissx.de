@@ -2,7 +2,7 @@ import { divide, round, Unit } from "mathjs";
 import React from "react";
 import { minorDiameter, pitchDiameter, Thread } from "./Thread";
 
-export type LengthUnit = "mm" | "inch";
+export type LengthUnit = "mm" | "in";
 export type PitchUnit = "tpmm" | "tpi";
 
 export type Settings = {
@@ -17,14 +17,9 @@ export type PartialSettings = {
     threads?: Thread[],
 };
 
-function convert(u: Unit, to: LengthUnit | PitchUnit): number {
-    if(to == "tpmm") return 1 / u.toNumber("mm");
-    if(to == "tpi") return 1 / u.toNumber("inch");
-    return u.toNumber(to);
-}
-
 export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
-    const rnd = (x: Unit, unit: LengthUnit | PitchUnit = lengthUnit) => round(convert(x, unit), 4);
+    const rdl = (x: Unit) => round(x.toNumber(lengthUnit), 4);
+    const rdp = (x: Unit) => round(1 / x.toNumber({ "tpmm": "mm", "tpi": "in" }[pitchUnit]), 4);
     return (
         <table>
             <thead>
@@ -47,14 +42,14 @@ export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
                 {threads.map(x =>
                     <tr key={x.name}>
                         <td>{x.name}</td>
-                        <td>{rnd(x.diameter)}</td>
-                        <td className="unimportant">{rnd(pitchDiameter(x))}</td>
-                        <td className="unimportant">{rnd(minorDiameter(x))}</td>
-                        <td>{rnd(x.pitch, pitchUnit)}</td>
-                        <td>{rnd(x.pitch)}</td>
-                        <td className="unimportant">{rnd(divide(x.pitch, 2))}</td>
-                        <td className="unimportant">{rnd(divide(x.pitch, 4))}</td>
-                        <td className="unimportant">{rnd(divide(x.pitch, 8))}</td>
+                        <td>{rdl(x.diameter)}</td>
+                        <td className="unimportant">{rdl(pitchDiameter(x))}</td>
+                        <td className="unimportant">{rdl(minorDiameter(x))}</td>
+                        <td>{rdp(x.pitch)}</td>
+                        <td>{rdl(x.pitch)}</td>
+                        <td className="unimportant">{rdl(divide(x.pitch, 2))}</td>
+                        <td className="unimportant">{rdl(divide(x.pitch, 4))}</td>
+                        <td className="unimportant">{rdl(divide(x.pitch, 8))}</td>
                     </tr>
                 )}
             </tbody>

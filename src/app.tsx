@@ -26,6 +26,16 @@ function Root() {
         UTS("#000", 120), UTS("#00", 90), UTS("#0", "fine"),
         UTS("#1"), UTS("#2"), UTS("#3"), UTS("#4"), UTS("#5"), UTS("#6"),
     ]);
+    const [newThread, setNewThread] = React.useState<string>("");
+    const addThread = () => {
+        const t = Thread(newThread);
+        if (t == undefined) {
+            alert("Cannot parse thread: \"" + newThread + "\"");
+            return;
+        }
+        setThreads([...threads, t]);
+        setNewThread("");
+    };
     //React.useEffect(() => {
     //    const { lengthUnit, pitchUnit, threads } = decodeHash(window.location.hash);
     //    if (lengthUnit) setLengthUnit(lengthUnit);
@@ -53,7 +63,7 @@ function Root() {
                 <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
                 <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
                     <option value="mm">Millimeter</option>
-                    <option value="inch">Inch</option>
+                    <option value="in">Inch</option>
                 </select>
                 <div className="interbuttonspacer" />
                 <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
@@ -61,6 +71,14 @@ function Root() {
                     <option value="tpmm">Threads per Millimeter</option>
                     <option value="tpi">Threads per Inch</option>
                 </select>
+                <div className="interbuttonspacer" />
+                {
+                    // this isn't perfect accessibility wise
+                    // TODO: fix that
+                }
+                <input type="text" value={newThread} onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" ? addThread() : undefined} />
+                <input type="button" value={"Add Thread"} onClick={_ => addThread()} />
+                <input type="button" value={"Clear"} onClick={_ => setThreads([])} />
             </div>
             <br />
             <Table {...{ lengthUnit, pitchUnit, threads }} />
