@@ -29,6 +29,9 @@ export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
         <table>
             <thead>
                 <tr>
+                    {
+                        // TODO: gray out buttons
+                    }
                     <th>Thread</th>
                     <th>D<sub>maj</sub> / {lengthUnit}</th>
                     <th className="unimportant">D<sub>p</sub> / {lengthUnit}</th>

@@ -10,4 +10,4 @@ import { Thread } from "./Thread";
     [" Unf#6", "#6-40", unit(".138in"), unit(".025in")],
 ].forEach(t => test("\"" + t[0] + "\" gets parsed as \"" + t[1] +
     "\" with a major diameter of " + t[2] + " and a pitch of " + t[3],
-    () => expect(Thread(t[0] as string)).toStrictEqual({name: t[1], diameter: t[2], pitch: t[3]})));
+    () => expect(Thread(t[0] as string)).toStrictEqual({ name: t[1], diameter: t[2], pitch: t[3] })));
