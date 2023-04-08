@@ -168,10 +168,10 @@ export const unef = {
     1.0000: 20,
 };
 
-export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "fine" | "unef" | "extrafine" = "unc"): Thread {
+export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafine" = "coarse"): Thread {
     const ed = diameter.includes("#00") ? "#-" + (diameter.split("0").length - 2) : diameter;
     const d = round(evaluate(ed.replace("#", "0.060+0.013*")), 10);
-    const t = tpi == "unc" || tpi == "coarse" ? unc[d] : tpi == "unf" || tpi == "fine" ? unf[d] : tpi == "unef" || tpi == "extrafine" ? unef[d] : tpi;
+    const t = tpi == "coarse" ? unc[d] : tpi == "fine" ? unf[d] : tpi == "extrafine" ? unef[d] : tpi;
     return {
         name: diameter + "-" + t,
         diameter: unit(d, "in"),
@@ -179,13 +179,23 @@ export function UTS(diameter: string, tpi: number | "unc" | "coarse" | "unf" | "
     };
 }
 
-// TODO: "UNC #6" → #6-32
 export function Thread(s: string): Thread | undefined {
-    s = s.trim().toUpperCase().replace("×", "X").replace("UNC", "").replace("UNF", "").replace("UNEF", "").replace("–", "-");
+    s = s.trim().toUpperCase().replace("×", "X").replace("–", "-");
 
-    if(s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
-    if(s.startsWith("M") && !s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
-    if(s.startsWith("M")) return M(Number(s.substring(1).split("X")[0].trim()), Number(s.split("X")[1].trim()));
+    try {
+        if (s.startsWith("M")) {
+            if (s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
+            if (!s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
+            return M(Number(s.split("X")[0].substring(1).trim()), Number(s.split("X")[1].trim()));
+        }
 
-    if(s.includes("-")) return UTS(s.split("-")[0].trim(), Number(s.split("-")[1].trim()));
+        if (s.includes("-")) {
+            const a = s.replace("UNC", "").replace("UNF", "").replace("UNEF", "").split("-");
+            return UTS(a[0].trim(), Number(a[1].trim()));
+        } else {
+            if (s.includes("UNC")) return UTS(s.substring(3).trim(), "coarse");
+            if (s.includes("UNF")) return UTS(s.substring(3).trim(), "fine");
+            if (s.includes("UNEF")) return UTS(s.substring(4).trim(), "extrafine");
+        }
+    } catch { }
 }
