@@ -50,7 +50,8 @@ function Root() {
     //    console.assert(t.diameter.toString() == T.diameter.toString(), T.diameter.toString() + " ≠ " + t.diameter.toString() + " – " + t.name);
     //    console.assert(t.pitch.toString() == T.pitch.toString(), T.pitch.toString() + " ≠ " + t.pitch.toString() + " – " + t.name);
     //});
-    window.location.hash = encodeHash({ lengthUnit, pitchUnit, threads });
+    const hash = encodeHash({ lengthUnit, pitchUnit, threads });
+    if (hash != window.location.hash) window.location.hash = hash;
     console.log(decodeHash(window.location.hash));
     console.log(encodeHash({ lengthUnit, pitchUnit, threads }).length);
     window.location.hash = encodeHash({ threads });

@@ -180,9 +180,9 @@ export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafi
 }
 
 export function Thread(s: string): Thread | undefined {
-    s = s.trim().toUpperCase().replace("×", "X").replace("–", "-");
-
     try {
+        s = s.trim().toUpperCase().replace("×", "X").replace("–", "-");
+    
         if (s.startsWith("M")) {
             if (s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
             if (!s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
