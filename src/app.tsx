@@ -54,9 +54,6 @@ function Root() {
     if (hash != window.location.hash) window.location.hash = hash;
     console.log(decodeHash(window.location.hash));
     console.log(encodeHash({ lengthUnit, pitchUnit, threads }).length);
-    window.location.hash = encodeHash({ threads });
-    console.log(decodeHash(window.location.hash));
-    console.log(encodeHash({ threads }).length);
     return (
         <>
             <Drawing />
@@ -73,13 +70,11 @@ function Root() {
                     <option value="tpi">Threads per Inch</option>
                 </select>
                 <div className="interbuttonspacer" />
-                {
-                    // this isn't perfect accessibility wise
-                    // TODO: fix that
-                }
-                <input type="text" value={newThread} onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" ? addThread() : undefined} />
-                <input type="button" value={"Add Thread"} onClick={_ => addThread()} />
-                <input type="button" value={"Clear"} onClick={_ => setThreads([])} />
+                <label htmlFor="newthread">Add Thread:&nbsp;</label>
+                <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" ? addThread() : undefined} />
+                <input type="button" value="+ Add" onClick={_ => addThread()} />
+                <div className="interbuttonspacer" />
+                <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
             </div>
             <br />
             <Table {...{ lengthUnit, pitchUnit, threads }} />
