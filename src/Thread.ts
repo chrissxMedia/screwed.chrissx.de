@@ -82,8 +82,9 @@ export const mFine = {
     64: 4,
 };
 
-export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"): Thread {
+export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"): Thread | undefined {
     const p = pitch == "coarse" ? mCoarse[diameter] : pitch == "fine" ? mFine[diameter] : pitch;
+    if (!p) return;
     return {
         name: pitch == "coarse" ? "M" + diameter : pitch == "fine" ? "MF" + diameter : "M" + diameter + "×" + p,
         diameter: unit(diameter, "mm"),
@@ -168,12 +169,16 @@ export const unef = {
     1.0000: 20,
 };
 
-export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafine" = "coarse"): Thread {
+export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafine" = "coarse"): Thread | undefined {
     const ed = diameter.includes("#00") ? "#-" + (diameter.split("0").length - 2) : diameter;
+    // this isnt ok with diameter = '1"', TODO: fix
     const d = round(evaluate(ed.replace("#", "0.060+0.013*")), 10);
     const t = tpi == "coarse" ? unc[d] : tpi == "fine" ? unf[d] : tpi == "extrafine" ? unef[d] : tpi;
+    if (!t) return;
+    const prefix = unc[d] == t ? "UNC " : unf[d] == t ? "UNF " : unef[d] == t ? "UNEF " : "";
     return {
-        name: diameter + "-" + t,
+        // this doesnt have a " for inches, TODO: fix
+        name: prefix + diameter + "-" + t,
         diameter: unit(d, "in"),
         pitch: unit(1 / t, "in"),
     };
@@ -182,7 +187,7 @@ export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafi
 export function Thread(s: string): Thread | undefined {
     try {
         s = s.trim().toUpperCase().replace("×", "X").replace("–", "-");
-    
+
         if (s.startsWith("M")) {
             if (s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
             if (!s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
