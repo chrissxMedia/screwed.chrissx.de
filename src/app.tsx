@@ -2,7 +2,7 @@ import Drawing from "./Drawing";
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import Table, { LengthUnit, PartialSettings, PitchUnit } from "./Table";
-import { M, mCoarse, mFine, Thread, UTS } from "./Thread";
+import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "./Thread";
 import { deflate, inflate } from "pako";
 
 function encodeHash(settings: PartialSettings): string {
@@ -21,11 +21,16 @@ function Root() {
     const [lengthUnit, setLengthUnit] = React.useState<LengthUnit>("mm");
     const [pitchUnit, setPitchUnit] = React.useState<PitchUnit>("tpi");
     const [threads, setThreads] = React.useState<Thread[]>([
+        // this has gotten way out of hand and we need to show a lot less by default
+        // TODO: just have a few things here
         ...Object.keys(mCoarse).map(Number).sort((a, b) => a - b).map(x => M(x, "coarse")),
         ...Object.keys(mFine).map(Number).sort((a, b) => a - b).map(x => M(x, "fine")),
         UTS("#000", 120), UTS("#00", 90), UTS("#0", "fine"),
         UTS("#1"), UTS("#2"), UTS("#3"), UTS("#4"), UTS("#5"), UTS("#6"),
-    ]);
+        ...Object.keys(unc).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString())),
+        ...Object.keys(unf).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "fine")),
+        ...Object.keys(unef).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "extrafine")),
+    ].filter(t => t) as Thread[]);
     const [newThread, setNewThread] = React.useState<string>("");
     const addThread = () => {
         const t = Thread(newThread);
