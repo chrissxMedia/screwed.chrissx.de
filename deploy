@@ -2,4 +2,4 @@
 set -uxe
 
 npm install
-npx parcel build
+npm run build
