@@ -1,4 +1,4 @@
-import { evaluate, multiply, round, subtract, unit, Unit } from "mathjs";
+import { evaluate, multiply, round, subtract, unit, type Unit } from "mathjs";
 
 export type Thread = {
     name: string,
@@ -178,6 +178,7 @@ export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafi
     const prefix = unc[d] == t ? "UNC " : unf[d] == t ? "UNF " : unef[d] == t ? "UNEF " : "";
     return {
         // this doesnt have a " for inches, TODO: fix
+        // also TODO: re-serialize diameter
         name: prefix + diameter + "-" + t,
         diameter: unit(d, "in"),
         pitch: unit(1 / t, "in"),

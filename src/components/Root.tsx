@@ -1,9 +1,8 @@
-import Drawing from "./Drawing";
-import React from "react";
-import ReactDOMClient from "react-dom/client";
-import Table, { LengthUnit, PartialSettings, PitchUnit } from "./Table";
-import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "./Thread";
+import Table, { type LengthUnit, type PartialSettings, type PitchUnit } from "./Table";
+import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "../Thread";
 import { deflate, inflate } from "pako";
+import { useState } from "preact/hooks";
+import { Buffer } from "buffer";
 
 function encodeHash(settings: PartialSettings): string {
     const j = { ...settings, threads: settings.threads?.map(x => x.name).join(";") };
@@ -15,12 +14,10 @@ function decodeHash(s: string): PartialSettings {
     return { ...j, threads: j.threads.split(";").map(Thread) };
 }
 
-function Root() {
-    // this is the ugliest hack ever
-    console.log(M(4));
-    const [lengthUnit, setLengthUnit] = React.useState<LengthUnit>("mm");
-    const [pitchUnit, setPitchUnit] = React.useState<PitchUnit>("tpi");
-    const [threads, setThreads] = React.useState<Thread[]>([
+export default function Root() {
+    const [lengthUnit, setLengthUnit] = useState<LengthUnit>("mm");
+    const [pitchUnit, setPitchUnit] = useState<PitchUnit>("tpi");
+    const [threads, setThreads] = useState<Thread[]>([
         // this has gotten way out of hand and we need to show a lot less by default
         // TODO: just have a few things here
         ...Object.keys(mCoarse).map(Number).sort((a, b) => a - b).map(x => M(x, "coarse")),
@@ -31,7 +28,7 @@ function Root() {
         ...Object.keys(unf).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "fine")),
         ...Object.keys(unef).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "extrafine")),
     ].filter(t => t) as Thread[]);
-    const [newThread, setNewThread] = React.useState<string>("");
+    const [newThread, setNewThread] = useState<string>("");
     const addThread = () => {
         const t = Thread(newThread);
         if (t == undefined) {
@@ -41,7 +38,7 @@ function Root() {
         setThreads([...threads, t]);
         setNewThread("");
     };
-    //React.useEffect(() => {
+    //useEffect(() => {
     //    const { lengthUnit, pitchUnit, threads } = decodeHash(window.location.hash);
     //    if (lengthUnit) setLengthUnit(lengthUnit);
     //    if (pitchUnit) setPitchUnit(pitchUnit);
@@ -61,7 +58,6 @@ function Root() {
     console.log(encodeHash({ lengthUnit, pitchUnit, threads }).length);
     return (
         <>
-            <Drawing />
             <div className="buttonhost">
                 <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
                 <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
@@ -76,7 +72,7 @@ function Root() {
                 </select>
                 <div className="interbuttonspacer" />
                 <label htmlFor="newthread">Add Thread:&nbsp;</label>
-                <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" ? addThread() : undefined} />
+                <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
                 <input type="button" value="+ Add" onClick={_ => addThread()} />
                 <div className="interbuttonspacer" />
                 <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
@@ -86,5 +82,3 @@ function Root() {
         </>
     );
 }
-
-ReactDOMClient.createRoot(document.getElementById("root")!).render(<Root />);
