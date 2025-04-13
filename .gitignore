@@ -5,3 +5,4 @@ parcel-bundle-reports/
 package-lock.json
 pnpm-lock.yaml
 .cache/
+.astro/
