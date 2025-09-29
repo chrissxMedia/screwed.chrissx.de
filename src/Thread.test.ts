@@ -3,6 +3,7 @@ import { Thread } from "./Thread";
 
 [
     [" M1", "M1", unit("1mm"), unit(".25mm")],
+    ["M1x.25", "M1", unit("1mm"), unit(".25mm")],
     ["m2 ", "M2", unit("2mm"), unit(".4mm")],
     ["mf3", "MF3", unit("3mm"), unit(".35mm")],
     ["m4x1", "M4×1", unit("4mm"), unit("1mm")],

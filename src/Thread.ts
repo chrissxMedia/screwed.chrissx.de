@@ -86,7 +86,9 @@ export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"
     const p = pitch == "coarse" ? mCoarse[diameter] : pitch == "fine" ? mFine[diameter] : pitch;
     if (!p) return;
     return {
-        name: pitch == "coarse" ? "M" + diameter : pitch == "fine" ? "MF" + diameter : "M" + diameter + "×" + p,
+        name: mCoarse[diameter] === p ? "M" + diameter :
+            mFine[diameter] === p ? "MF" + diameter :
+                "M" + diameter + "×" + p,
         diameter: unit(diameter, "mm"),
         pitch: unit(p, "mm"),
     };
