@@ -10,12 +10,6 @@ export type Settings = {
     threads: Thread[],
 };
 
-export type PartialSettings = {
-    lengthUnit?: LengthUnit,
-    pitchUnit?: PitchUnit,
-    threads?: Thread[],
-};
-
 export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
     const rdl = (x: Unit) => round(x.toNumber(lengthUnit), 4);
     const rdp = (x: Unit) => round(1 / x.toNumber({ "tpmm": "mm", "tpi": "in" }[pitchUnit]), 4);

@@ -1,15 +1,15 @@
-import Table, { type LengthUnit, type PartialSettings, type PitchUnit } from "./Table";
+import Table, { type LengthUnit, type PitchUnit, type Settings } from "./Table";
 import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "../Thread";
 import { deflate, inflate } from "pako";
 import { useState } from "preact/hooks";
 import { Buffer } from "buffer";
 
-function encodeHash(settings: PartialSettings): string {
+function encodeHash(settings: Partial<Settings>): string {
     const j = { ...settings, threads: settings.threads?.map(x => x.name).join(";") };
     return "#" + Buffer.from(deflate(JSON.stringify(j), { raw: true, level: 9 })).toString("base64");
 }
 
-function decodeHash(s: string): PartialSettings {
+function decodeHash(s: string): Partial<Settings> {
     const j = JSON.parse(inflate(Buffer.from(s.substring(1), "base64"), { to: "string", raw: true }) as string);
     return { ...j, threads: j.threads.split(";").map(Thread) };
 }
