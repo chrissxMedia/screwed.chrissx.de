@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 
 function encodeHash(settings: PartialSettings): string {
     const j = { ...settings, threads: settings.threads?.map(x => x.name).join(";") };
-    return "#" + Buffer.from(deflate(JSON.stringify(j), { raw: true, level: 9 })!).toString("base64");
+    return "#" + Buffer.from(deflate(JSON.stringify(j), { raw: true, level: 9 })).toString("base64");
 }
 
 function decodeHash(s: string): PartialSettings {
@@ -59,25 +59,27 @@ export default function Root() {
     return (
         <>
             <div className="buttonhost">
-                <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
-                <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
-                    <option value="mm">Millimeter</option>
-                    <option value="in">Inch</option>
-                </select>
-                <div className="interbuttonspacer" />
-                <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
-                <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.target.value as PitchUnit)} value={pitchUnit}>
-                    <option value="tpmm">Threads per Millimeter</option>
-                    <option value="tpi">Threads per Inch</option>
-                </select>
-                <div className="interbuttonspacer" />
-                <label htmlFor="newthread">Add Thread:&nbsp;</label>
-                <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
-                <input type="button" value="+ Add" onClick={_ => addThread()} />
-                <div className="interbuttonspacer" />
+                <div>
+                    <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
+                    <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
+                        <option value="mm">Millimeter</option>
+                        <option value="in">Inch</option>
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
+                    <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.target.value as PitchUnit)} value={pitchUnit}>
+                        <option value="tpmm">Threads per Millimeter</option>
+                        <option value="tpi">Threads per Inch</option>
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="newthread">Add Thread:&nbsp;</label>
+                    <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
+                    <input type="button" value="+ Add" onClick={_ => addThread()} />
+                </div>
                 <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
             </div>
-            <br />
             <Table {...{ lengthUnit, pitchUnit, threads }} />
         </>
     );

@@ -96,9 +96,20 @@ import Root from "../components/Root";
         flex-direction: row;
         -webkit-box-align: center;
         align-items: center;
+        justify-content: space-evenly;
+        padding-bottom: 1em;
+        column-gap: 1ch;
+        row-gap: 1em;
     }
 
-    .interbuttonspacer {
-        width: 32pt;
+    label,
+    select {
+        vertical-align: middle;
+    }
+
+    @media (max-width: 1200px) {
+        .buttonhost {
+            flex-wrap: wrap;
+        }
     }
 </style>
