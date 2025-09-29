@@ -13,14 +13,24 @@ import Root from "../components/Root";
     <p class="important">
         This page has not been checked against the actual ISO/ANSI standards
         yet. At no point shall chrissx Media or any other organisation or
-        individual involved in the creation of this page be held accountable
-        for the accuracy of the information presented, or any damages
-        resulting from its inaccuracy.
+        individual involved in the creation of this page be held accountable for
+        the accuracy of the information presented, or any damages resulting from
+        its inaccuracy.
     </p>
-    <figure>
-        <img alt="ISO and UTS Thread Dimensions" src="https://upload.wikimedia.org/wikipedia/commons/4/4b/ISO_and_UTS_Thread_Dimensions.svg" />
-        <figcaption><a href="https://commons.wikimedia.org/wiki/File:ISO_and_UTS_Thread_Dimensions.svg">Inductiveload</a>, Public domain, via Wikimedia Commons</figcaption>
-    </figure>
+    <a
+        href="https://commons.wikimedia.org/wiki/File:ISO_and_UTS_Thread_Dimensions.svg"
+        target="_blank"
+    >
+        <figure>
+            <img
+                alt="ISO and UTS Thread Dimensions"
+                src="https://upload.wikimedia.org/wikipedia/commons/4/4b/ISO_and_UTS_Thread_Dimensions.svg"
+            />
+            <figcaption>
+                Inductiveload, Public domain, via Wikimedia Commons
+            </figcaption>
+        </figure>
+    </a>
     <Root client:only />
 </BaseLayout>
 
@@ -37,6 +47,15 @@ import Root from "../components/Root";
         background-color: white;
         width: 384px;
         height: 260px;
+    }
+
+    figure {
+        width: max-content;
+    }
+
+    a {
+        text-decoration: none;
+        display: contents;
     }
 
     .important {
