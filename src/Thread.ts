@@ -196,12 +196,11 @@ export function Thread(s: string): Thread | undefined {
         }
 
         if (s.includes("-")) {
-            const a = s.replace("UNC", "").replace("UNF", "").replace("UNEF", "").split("-");
+            const a = s.replace(/UN(C|E?F)/, "").split("-");
             return UTS(a[0].trim(), Number(a[1].trim()));
-        } else {
-            if (s.includes("UNC")) return UTS(s.substring(3).trim(), "coarse");
-            if (s.includes("UNF")) return UTS(s.substring(3).trim(), "fine");
-            if (s.includes("UNEF")) return UTS(s.substring(4).trim(), "extrafine");
         }
+        if (s.includes("UNC")) return UTS(s.substring(3).trim(), "coarse");
+        if (s.includes("UNF")) return UTS(s.substring(3).trim(), "fine");
+        if (s.includes("UNEF")) return UTS(s.substring(4).trim(), "extrafine");
     } catch { }
 }
