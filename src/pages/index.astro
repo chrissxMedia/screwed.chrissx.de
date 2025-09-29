@@ -1,11 +1,11 @@
 ---
-import { BaseLayout } from "cmdesigns";
+import { BaseLayout, Footer } from "cmdesigns";
 import Root from "../components/Root";
 ---
 
 <BaseLayout
     lang="en"
-    title="chrissx Media Screwed"
+    title="Screwed by chrissx Media"
     description="The ultimate reference for all your threads."
     themecolor="#000000"
 >
@@ -32,6 +32,7 @@ import Root from "../components/Root";
         </figure>
     </a>
     <Root client:only />
+    <Footer start={2023} />
 </BaseLayout>
 
 <style>
