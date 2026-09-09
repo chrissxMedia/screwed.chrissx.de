@@ -181,7 +181,7 @@ export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafi
     return {
         // this doesnt have a " for inches, TODO: fix
         // also TODO: re-serialize diameter
-        name: prefix + diameter + "-" + t,
+        name: prefix + diameter.replaceAll(" ", "") + "-" + t,
         diameter: unit(d, "in"),
         pitch: unit(1 / t, "in"),
     };
