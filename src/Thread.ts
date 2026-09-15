@@ -1,20 +1,18 @@
-import { evaluate, multiply, round, subtract, unit, type Unit } from "mathjs";
-
 export type Thread = {
     name: string,
-    diameter: Unit,
-    pitch: Unit,
+    diameterMm: number,
+    pitchMm: number,
 };
 
-export function minorDiameter(t: Thread): Unit {
-    return subtract(t.diameter, multiply(1.08253175473, t.pitch)) as Unit;
+export function minorDiameter(t: Thread): number {
+    return t.diameterMm - 1.08253175473 * t.pitchMm;
 }
 
-export function pitchDiameter(t: Thread): Unit {
-    return subtract(t.diameter, multiply(0.6495190528, t.pitch)) as Unit;
+export function pitchDiameter(t: Thread): number {
+    return t.diameterMm - 0.6495190528 * t.pitchMm;
 }
 
-export const mCoarse = {
+export const mCoarse: Record<number, number | undefined> = {
     1: 0.25,
     1.2: 0.25,
     1.4: 0.3,
@@ -51,7 +49,7 @@ export const mCoarse = {
     64: 6,
 };
 
-export const mFine = {
+export const mFine: Record<number, number | undefined> = {
     1: 0.2,
     1.2: 0.2,
     1.4: 0.2,
@@ -84,17 +82,17 @@ export const mFine = {
 
 export function M(diameter: number, pitch: number | "coarse" | "fine" = "coarse"): Thread | undefined {
     const p = pitch == "coarse" ? mCoarse[diameter] : pitch == "fine" ? mFine[diameter] : pitch;
-    if (!p) return;
+    if (p === undefined) return;
     return {
         name: mCoarse[diameter] === p ? "M" + diameter :
             mFine[diameter] === p ? "MF" + diameter :
                 "M" + diameter + "×" + p,
-        diameter: unit(diameter, "mm"),
-        pitch: unit(p, "mm"),
+        diameterMm: diameter,
+        pitchMm: p,
     };
 }
 
-export const unc = {
+export const unc: Record<number, number | undefined> = {
     0.0730: 64,
     0.0860: 56,
     0.0990: 48,
@@ -130,7 +128,7 @@ export const unc = {
     4.0000: 4,
 };
 
-export const unf = {
+export const unf: Record<number, number | undefined> = {
     0.0600: 80,
     0.0730: 72,
     0.0860: 64,
@@ -157,7 +155,7 @@ export const unf = {
     1.5000: 12,
 };
 
-export const unef = {
+export const unef: Record<number, number | undefined> = {
     0.2160: 32,
     0.2500: 32,
     0.3125: 32,
@@ -171,38 +169,65 @@ export const unef = {
     1.0000: 20,
 };
 
+const decimal = String.raw`[+-]?(?:\d+(?:\.\d*)?|\.\d+)`;
+const metricPattern = new RegExp(`^M(F)?\\s*(${decimal})(?:\\s*X\\s*(${decimal}))?$`);
+const inchPattern = new RegExp(`^(${decimal})\\s*["″]?$`);
+const utsPattern = new RegExp(`^(UNC|UNF|UNEF)?\\s*(.+?)(?:\\s*-\\s*(${decimal}))?\\s*(UNC|UNF|UNEF)?$`);
+const series = { UNC: "coarse", UNF: "fine", UNEF: "extrafine" } as const;
+
+function inchDiameter(s: string): number | undefined {
+    s = s.trim();
+    const gauge = /^#\s*(\d+)$/.exec(s);
+    if (gauge) {
+        const n = /^0+$/.test(gauge[1]) ? 1 - gauge[1].length : Number(gauge[1]);
+        return (60 + 13 * n) / 1000;
+    }
+    const fraction = /^([+-]?)(?:(\d+)\s+)?(\d+)\s*\/\s*(\d+)\s*["″]?$/.exec(s);
+    if (fraction) return (fraction[1] === "-" ? -1 : 1) * (Number(fraction[2] ?? 0) + Number(fraction[3]) / Number(fraction[4]));
+    const number = inchPattern.exec(s);
+    if (number) return Number(number[1]);
+}
+
+function inchName(d: number): string {
+    const gauge = Math.round((d * 1000 - 60) / 13);
+    if (Number.isInteger(gauge) && (60 + 13 * gauge) / 1000 === d)
+        return gauge < 0 ? "#" + "0".repeat(1 - gauge) : "#" + gauge;
+    if (Number.isInteger(d)) return d + '\"';
+    for (let den = 2; den <= 64; den *= 2) {
+        if (Number.isInteger(d * den)) {
+            const whole = Math.abs(Math.trunc(d));
+            const num = Math.abs(d * den % den);
+            return (d < 0 ? "-" : "") + (whole ? whole + " " : "") + num + "/" + den + '\"';
+        }
+    }
+    return d + '\"';
+}
+
 export function UTS(diameter: string, tpi: number | "coarse" | "fine" | "extrafine" = "coarse"): Thread | undefined {
-    const ed = diameter.includes("#00") ? "#-" + (diameter.split("0").length - 2) : diameter;
-    // this isnt ok with diameter = '1"', TODO: fix
-    const d = round(evaluate(ed.replace("#", "0.060+0.013*")), 10);
+    const d = inchDiameter(diameter);
+    if (d === undefined) return;
     const t = tpi == "coarse" ? unc[d] : tpi == "fine" ? unf[d] : tpi == "extrafine" ? unef[d] : tpi;
-    if (!t) return;
+    if (t === undefined) return;
     const prefix = unc[d] == t ? "UNC " : unf[d] == t ? "UNF " : unef[d] == t ? "UNEF " : "";
     return {
-        // this doesnt have a " for inches, TODO: fix
-        // also TODO: re-serialize diameter
-        name: prefix + diameter.replaceAll(" ", "") + "-" + t,
-        diameter: unit(d, "in"),
-        pitch: unit(1 / t, "in"),
+        name: prefix + inchName(d) + "-" + t,
+        diameterMm: d * 25.4,
+        pitchMm: 25.4 / t,
     };
 }
 
 export function Thread(s: string): Thread | undefined {
-    try {
-        s = s.trim().toUpperCase().replace("×", "X").replace("–", "-");
-
-        if (s.startsWith("M")) {
-            if (s.startsWith("MF")) return M(Number(s.substring(2).trim()), "fine");
-            if (!s.includes("X")) return M(Number(s.substring(1).trim()), "coarse");
-            return M(Number(s.split("X")[0].substring(1).trim()), Number(s.split("X")[1].trim()));
-        }
-
-        if (s.includes("-")) {
-            const a = s.replace(/UN(C|E?F)/, "").split("-");
-            return UTS(a[0].trim(), Number(a[1].trim()));
-        }
-        if (s.includes("UNC")) return UTS(s.substring(3).trim(), "coarse");
-        if (s.includes("UNF")) return UTS(s.substring(3).trim(), "fine");
-        if (s.includes("UNEF")) return UTS(s.substring(4).trim(), "extrafine");
-    } catch { }
+    s = s.trim().toUpperCase().replaceAll("×", "X").replaceAll("–", "-");
+    const metric = metricPattern.exec(s);
+    if (metric) {
+        if (metric[1] && metric[3] !== undefined) return;
+        return M(Number(metric[2]), metric[3] === undefined ? metric[1] ? "fine" : "coarse" : Number(metric[3]));
+    }
+    const uts = utsPattern.exec(s);
+    if (!uts || uts[1] && uts[4]) return;
+    const designation = series[(uts[1] || uts[4]) as keyof typeof series];
+    if (uts[3] === undefined) return designation ? UTS(uts[2], designation) : undefined;
+    const t = UTS(uts[2], Number(uts[3]));
+    if (designation && (!t || UTS(uts[2], designation)?.pitchMm !== t.pitchMm)) return;
+    return t;
 }

@@ -1,4 +1,3 @@
-import { divide, round, type Unit } from "mathjs";
 import { minorDiameter, pitchDiameter, Thread } from "../Thread";
 
 export type LengthUnit = "mm" | "in";
@@ -11,8 +10,8 @@ export type Settings = {
 };
 
 export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
-    const rdl = (x: Unit) => round(x.toNumber(lengthUnit), 4);
-    const rdp = (x: Unit) => round(1 / x.toNumber({ "tpmm": "mm", "tpi": "in" }[pitchUnit]), 4);
+    const rdl = (mm: number) => Number((mm / (lengthUnit === "in" ? 25.4 : 1)).toFixed(4));
+    const rdp = (mm: number) => Number(((pitchUnit === "tpi" ? 25.4 : 1) / mm).toFixed(4));
     return (
         <table>
             <thead>
@@ -35,14 +34,14 @@ export default function Table({ lengthUnit, pitchUnit, threads }: Settings) {
                 {threads.map(x =>
                     <tr key={x.name}>
                         <td>{x.name}</td>
-                        <td>{rdl(x.diameter)}</td>
+                        <td>{rdl(x.diameterMm)}</td>
                         <td className="unimportant">{rdl(pitchDiameter(x))}</td>
                         <td className="unimportant">{rdl(minorDiameter(x))}</td>
-                        <td>{rdp(x.pitch)}</td>
-                        <td>{rdl(x.pitch)}</td>
-                        <td className="unimportant">{rdl(divide(x.pitch, 2))}</td>
-                        <td className="unimportant">{rdl(divide(x.pitch, 4))}</td>
-                        <td className="unimportant">{rdl(divide(x.pitch, 8))}</td>
+                        <td>{rdp(x.pitchMm)}</td>
+                        <td>{rdl(x.pitchMm)}</td>
+                        <td className="unimportant">{rdl(x.pitchMm / 2)}</td>
+                        <td className="unimportant">{rdl(x.pitchMm / 4)}</td>
+                        <td className="unimportant">{rdl(x.pitchMm / 8)}</td>
                     </tr>
                 )}
             </tbody>
