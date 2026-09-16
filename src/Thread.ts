@@ -190,7 +190,7 @@ function inchDiameter(s: string): number | undefined {
 
 function inchName(d: number): string {
     const gauge = Math.round((d * 1000 - 60) / 13);
-    if (Number.isInteger(gauge) && (60 + 13 * gauge) / 1000 === d)
+    if (d < .25 && (60 + 13 * gauge) / 1000 === d)
         return gauge < 0 ? "#" + "0".repeat(1 - gauge) : "#" + gauge;
     if (Number.isInteger(d)) return d + '\"';
     for (let den = 2; den <= 64; den *= 2) {
