@@ -44,14 +44,6 @@ export default function Root() {
     //    if (pitchUnit) setPitchUnit(pitchUnit);
     //    if (threads) setThreads(threads);
     //}, [window.location.hash]);
-    //threads.forEach(t => {
-    //    let T = Thread(t.name);
-    //    console.assert(!(T instanceof String), T);
-    //    T = T as Thread;
-    //    console.assert(t.name == T.name, T.name + " ≠ " + t.name);
-    //    console.assert(t.diameter.toString() == T.diameter.toString(), T.diameter.toString() + " ≠ " + t.diameter.toString() + " – " + t.name);
-    //    console.assert(t.pitch.toString() == T.pitch.toString(), T.pitch.toString() + " ≠ " + t.pitch.toString() + " – " + t.name);
-    //});
     const hash = encodeHash({ lengthUnit, pitchUnit, threads });
     if (hash != window.location.hash) window.location.hash = hash;
     console.log(decodeHash(window.location.hash));
@@ -61,21 +53,21 @@ export default function Root() {
             <div className="buttonhost">
                 <div>
                     <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
-                    <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.target.value as LengthUnit)} value={lengthUnit}>
+                    <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.currentTarget.value as LengthUnit)} value={lengthUnit}>
                         <option value="mm">Millimeter</option>
                         <option value="in">Inch</option>
                     </select>
                 </div>
                 <div>
                     <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
-                    <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.target.value as PitchUnit)} value={pitchUnit}>
+                    <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.currentTarget.value as PitchUnit)} value={pitchUnit}>
                         <option value="tpmm">Threads per Millimeter</option>
                         <option value="tpi">Threads per Inch</option>
                     </select>
                 </div>
                 <div>
                     <label htmlFor="newthread">Add Thread:&nbsp;</label>
-                    <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.target.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
+                    <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.currentTarget.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
                     <input type="button" value="+ Add" onClick={_ => addThread()} />
                 </div>
                 <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
