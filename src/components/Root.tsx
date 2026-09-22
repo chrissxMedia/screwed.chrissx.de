@@ -67,7 +67,7 @@ export default function Root() {
                 </div>
                 <div>
                     <label htmlFor="newthread">Add Thread:&nbsp;</label>
-                    <input type="text" value={newThread} id="newthread" onChange={e => setNewThread(e.currentTarget.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
+                    <input type="text" value={newThread} id="newthread" onInput={e => setNewThread(e.currentTarget.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
                     <input type="button" value="+ Add" onClick={_ => addThread()} />
                 </div>
                 <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
