@@ -1,30 +1,29 @@
 import Table, { type LengthUnit, type PitchUnit, type Settings } from "./Table";
 import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "../Thread";
-import { deflate, inflate } from "pako";
 import { useEffect, useState } from "preact/hooks";
-import { Buffer } from "buffer";
 
 function encodeHash(settings: Settings): string {
-    const j = { ...settings, threads: settings.threads.map(x => x.name).join(";") };
-    return "#" + Buffer.from(deflate(JSON.stringify(j), { raw: true, level: 9 })).toString("base64");
+    return "#" + new URLSearchParams({
+        length: settings.lengthUnit,
+        pitch: settings.pitchUnit,
+        threads: settings.threads.map(x => x.name).join("*"),
+    });
 }
 
 function decodeHash(s: string): Partial<Settings> {
     if (!s) return {};
-    try {
-        const j: { lengthUnit?: unknown; pitchUnit?: unknown; threads?: unknown } =
-            JSON.parse(inflate(Buffer.from(s.substring(1), "base64"), { to: "string", raw: true }) as string);
-        const settings: Partial<Settings> = {};
-        if (j.lengthUnit === "mm" || j.lengthUnit === "in") settings.lengthUnit = j.lengthUnit;
-        if (j.pitchUnit === "tpmm" || j.pitchUnit === "tpi") settings.pitchUnit = j.pitchUnit;
-        if (typeof j.threads === "string") {
-            const threads = j.threads ? j.threads.split(";").map(Thread) : [];
-            if (!threads.some(t => !t)) settings.threads = threads as Thread[];
-        }
-        return settings;
-    } catch {
-        return {};
+    const params = new URLSearchParams(s.substring(1));
+    const lengthUnit = params.get("length");
+    const pitchUnit = params.get("pitch");
+    const names = params.get("threads");
+    const settings: Partial<Settings> = {};
+    if (lengthUnit === "mm" || lengthUnit === "in") settings.lengthUnit = lengthUnit;
+    if (pitchUnit === "tpmm" || pitchUnit === "tpi") settings.pitchUnit = pitchUnit;
+    if (names !== null) {
+        const threads = names ? names.split("*").map(Thread) : [];
+        if (!threads.some(t => !t)) settings.threads = threads as Thread[];
     }
+    return settings;
 }
 
 const defaults: Settings = {
