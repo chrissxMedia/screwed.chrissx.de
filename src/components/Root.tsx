@@ -1,23 +1,36 @@
 import Table, { type LengthUnit, type PitchUnit, type Settings } from "./Table";
 import { M, mCoarse, mFine, Thread, unc, unef, unf, UTS } from "../Thread";
 import { deflate, inflate } from "pako";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { Buffer } from "buffer";
 
-function encodeHash(settings: Partial<Settings>): string {
-    const j = { ...settings, threads: settings.threads?.map(x => x.name).join(";") };
+function encodeHash(settings: Settings): string {
+    const j = { ...settings, threads: settings.threads.map(x => x.name).join(";") };
     return "#" + Buffer.from(deflate(JSON.stringify(j), { raw: true, level: 9 })).toString("base64");
 }
 
 function decodeHash(s: string): Partial<Settings> {
-    const j = JSON.parse(inflate(Buffer.from(s.substring(1), "base64"), { to: "string", raw: true }) as string);
-    return { ...j, threads: j.threads.split(";").map(Thread) };
+    if (!s) return {};
+    try {
+        const j: { lengthUnit?: unknown; pitchUnit?: unknown; threads?: unknown } =
+            JSON.parse(inflate(Buffer.from(s.substring(1), "base64"), { to: "string", raw: true }) as string);
+        const settings: Partial<Settings> = {};
+        if (j.lengthUnit === "mm" || j.lengthUnit === "in") settings.lengthUnit = j.lengthUnit;
+        if (j.pitchUnit === "tpmm" || j.pitchUnit === "tpi") settings.pitchUnit = j.pitchUnit;
+        if (typeof j.threads === "string") {
+            const threads = j.threads ? j.threads.split(";").map(Thread) : [];
+            if (!threads.some(t => !t)) settings.threads = threads as Thread[];
+        }
+        return settings;
+    } catch {
+        return {};
+    }
 }
 
-export default function Root() {
-    const [lengthUnit, setLengthUnit] = useState<LengthUnit>("mm");
-    const [pitchUnit, setPitchUnit] = useState<PitchUnit>("tpi");
-    const [threads, setThreads] = useState<Thread[]>([
+const defaults: Settings = {
+    lengthUnit: "mm",
+    pitchUnit: "tpi",
+    threads: [
         // this has gotten way out of hand and we need to show a lot less by default
         // TODO: just have a few things here
         ...Object.keys(mCoarse).map(Number).sort((a, b) => a - b).map(x => M(x, "coarse")),
@@ -27,40 +40,48 @@ export default function Root() {
         ...Object.keys(unc).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString())),
         ...Object.keys(unf).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "fine")),
         ...Object.keys(unef).map(Number).filter(x => x >= .25).sort((a, b) => a - b).map(x => UTS(x.toString(), "extrafine")),
-    ].filter(t => t) as Thread[]);
+    ].filter(t => t) as Thread[],
+};
+
+export default function Root() {
+    const [settings, setSettings] = useState<Settings>(() => ({ ...defaults, ...decodeHash(window.location.hash) }));
+    const { lengthUnit, pitchUnit, threads } = settings;
     const [newThread, setNewThread] = useState<string>("");
+    const update = (next: Settings) => {
+        setSettings(next);
+        window.history.pushState(null, "", encodeHash(next));
+    };
     const addThread = () => {
         const t = Thread(newThread);
         if (t == undefined) {
             alert("Cannot parse thread: \"" + newThread + "\"");
             return;
         }
-        setThreads([...threads, t]);
+        update({ ...settings, threads: [...threads, t] });
         setNewThread("");
     };
-    //useEffect(() => {
-    //    const { lengthUnit, pitchUnit, threads } = decodeHash(window.location.hash);
-    //    if (lengthUnit) setLengthUnit(lengthUnit);
-    //    if (pitchUnit) setPitchUnit(pitchUnit);
-    //    if (threads) setThreads(threads);
-    //}, [window.location.hash]);
-    const hash = encodeHash({ lengthUnit, pitchUnit, threads });
-    if (hash != window.location.hash) window.location.hash = hash;
-    console.log(decodeHash(window.location.hash));
-    console.log(encodeHash({ lengthUnit, pitchUnit, threads }).length);
+    useEffect(() => {
+        const restore = () => setSettings({ ...defaults, ...decodeHash(window.location.hash) });
+        window.addEventListener("popstate", restore);
+        window.addEventListener("hashchange", restore);
+        return () => {
+            window.removeEventListener("popstate", restore);
+            window.removeEventListener("hashchange", restore);
+        };
+    }, []);
     return (
         <>
             <div className="buttonhost">
                 <div>
                     <label htmlFor="lengthunits">Length/Diameter/… Unit:&nbsp;</label>
-                    <select size={2} id="lengthunits" onChange={x => setLengthUnit(x.currentTarget.value as LengthUnit)} value={lengthUnit}>
+                    <select size={2} id="lengthunits" onChange={x => update({ ...settings, lengthUnit: x.currentTarget.value as LengthUnit })} value={lengthUnit}>
                         <option value="mm">Millimeter</option>
                         <option value="in">Inch</option>
                     </select>
                 </div>
                 <div>
                     <label htmlFor="pitchunits">Pitch Unit:&nbsp;</label>
-                    <select size={2} id="pitchunits" onChange={x => setPitchUnit(x.currentTarget.value as PitchUnit)} value={pitchUnit}>
+                    <select size={2} id="pitchunits" onChange={x => update({ ...settings, pitchUnit: x.currentTarget.value as PitchUnit })} value={pitchUnit}>
                         <option value="tpmm">Threads per Millimeter</option>
                         <option value="tpi">Threads per Inch</option>
                     </select>
@@ -70,7 +91,7 @@ export default function Root() {
                     <input type="text" value={newThread} id="newthread" onInput={e => setNewThread(e.currentTarget.value)} onKeyDown={e => e.key == "Enter" && addThread()} />
                     <input type="button" value="+ Add" onClick={_ => addThread()} />
                 </div>
-                <input type="button" value="Clear All Threads" onClick={_ => setThreads([])} />
+                <input type="button" value="Clear All Threads" onClick={_ => update({ ...settings, threads: [] })} />
             </div>
             <Table {...{ lengthUnit, pitchUnit, threads }} />
         </>
