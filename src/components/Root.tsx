@@ -6,7 +6,7 @@ function encodeHash(settings: Settings): string {
     return "#" + new URLSearchParams({
         length: settings.lengthUnit,
         pitch: settings.pitchUnit,
-        threads: settings.threads.map(x => x.name).join("*"),
+        threads: settings.threads.map(x => x.name.replace(/^UN(?:C|F|EF) /, "")).join("*"),
     });
 }
 
