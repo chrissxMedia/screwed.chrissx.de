@@ -1,4 +1,5 @@
 {
+  "name": "screwed.chrissx.de",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
