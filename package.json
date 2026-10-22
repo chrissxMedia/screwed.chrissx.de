@@ -6,7 +6,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "jest"
+    "test": "tsc --noEmit && vitest run"
   },
   "dependencies": {
     "@astrojs/preact": "^6.0.0",
@@ -15,9 +15,8 @@
     "preact": "^10.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "jest": "^30.5.2",
-    "ts-jest": "^29.1.0"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   },
   "allowScripts": {
     "esbuild": true,

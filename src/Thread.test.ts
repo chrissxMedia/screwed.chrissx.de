@@ -1,4 +1,4 @@
-import { expect, test } from "@jest/globals";
+import { expect, test } from "vitest";
 import { M, mCoarse, mFine, minorDiameter, pitchDiameter, Thread, unc, unef, unf, UTS } from "./Thread";
 
 test.each([
